@@ -52,13 +52,14 @@ fn update_animation_movement(mut player_query: Query<(&MovementController, &mut 
 }
 
 /// Update the texture atlas to reflect changes in the animation.
-fn update_animation_atlas(mut query: Query<(&PlayerAnimation, &mut Sprite)>) {
-    for (animation, mut sprite) in &mut query {
+fn update_animation_atlas(mut query: Query<(&mut PlayerAnimation, &mut Sprite)>) {
+    for (mut animation, mut sprite) in &mut query {
         let Some(atlas) = sprite.texture_atlas.as_mut() else {
             continue;
         };
         if animation.changed() {
             atlas.index = animation.get_atlas_index();
+            animation.changed = false;
         }
     }
 }
@@ -87,16 +88,18 @@ fn trigger_step_sound_effect(
 
 /// Component that tracks player's animation state.
 /// It is tightly bound to the texture atlas we use.
-#[derive(Component, Reflect)]
+#[derive(Component, Reflect, Default)]
 #[reflect(Component)]
 pub struct PlayerAnimation {
     timer: Timer,
     frame: usize,
     state: PlayerAnimationState,
+    changed: bool,
 }
 
-#[derive(Reflect, PartialEq)]
+#[derive(Reflect, PartialEq, Default)]
 pub enum PlayerAnimationState {
+    #[default]
     Idling,
     Walking(Vec2),
 }
@@ -105,25 +108,25 @@ impl PlayerAnimation {
     /// The number of idle frames.
     const IDLE_FRAMES: usize = 1;
     /// The duration of each idle frame.
-    const IDLE_INTERVAL: Duration = Duration::from_millis(500);
+    const IDLE_INTERVAL: Duration = Duration::from_secs(1);
     /// The number of walking frames.
-    const WALKING_FRAMES: usize = 4;
+    const WALKING_FRAMES: usize = 3;
     /// The duration of each walking frame.
-    const WALKING_INTERVAL: Duration = Duration::from_millis(50);
+    const WALKING_INTERVAL: Duration = Duration::from_millis(200);
 
     fn idling() -> Self {
         Self {
             timer: Timer::new(Self::IDLE_INTERVAL, TimerMode::Repeating),
-            frame: 0,
             state: PlayerAnimationState::Idling,
+            ..default()
         }
     }
 
     fn walking(dir: Vec2) -> Self {
         Self {
             timer: Timer::new(Self::WALKING_INTERVAL, TimerMode::Repeating),
-            frame: 0,
             state: PlayerAnimationState::Walking(dir),
+            ..default()
         }
     }
 
@@ -152,11 +155,12 @@ impl PlayerAnimation {
                 PlayerAnimationState::Walking(dir) => *self = Self::walking(dir),
             }
         }
+        self.changed = true;
     }
 
     /// Whether animation changed this tick.
     pub fn changed(&self) -> bool {
-        self.timer.is_finished()
+        self.changed || self.timer.is_finished()
     }
 
     /// Return sprite index in the atlas.
