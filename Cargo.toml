@@ -6,36 +6,48 @@ edition = "2024"
 
 [dependencies]
 # Use only features needed for a 2D game to improve compile time and size
-bevy = { version = "0.19", default-features = false, features = ["2d", "ui", "audio"] }
-rand = "0.9"
+bevy = { version = "0.20", default-features = false, features = [
+  "2d",
+  "ui",
+  "audio",
+] }
+bevy_rapier2d = { version = "0.37.0", features = [
+  "async-collider",
+  "dim2",
+  "picking-backend",
+  "to-bevy-mesh",
+] }
+leafwing-input-manager = "0.22"
+rand = "0.10"
 # Compile out low-severity logs to improve performance.
 # Remove these features if you want to profile your game with tracy.
 # (see <https://github.com/bevyengine/bevy/blob/main/docs/profiling.md#tracy-profiler>)
 tracing = { version = "0.1", features = [
-    "max_level_debug",
-    "release_max_level_warn",
+  "max_level_debug",
+  "release_max_level_warn",
 ] }
 
 [target.wasm32-unknown-unknown.dependencies]
-getrandom = { version = "0.3", features = ["wasm_js"] }
+getrandom = { version = "0.4", features = ["wasm_js"] }
 
 [features]
 # Default to a native dev build.
 default = ["dev_native"]
 dev = [
-    # Improve compile times for dev builds by linking Bevy as a dynamic library.
-    "bevy/dynamic_linking",
-    "bevy/bevy_dev_tools",
-    "bevy/bevy_ui_debug",
-    # Improve error messages coming from Bevy
-    "bevy/track_location",
+  # Improve compile times for dev builds by linking Bevy as a dynamic library.
+  "bevy/dynamic_linking",
+  "bevy/bevy_dev_tools",
+  "bevy/bevy_ui_debug",
+  "bevy/file_watcher",
+  # Improve error messages coming from Bevy
+  "bevy/track_location",
 ]
 dev_native = [
-    "dev",
-    # Enable asset hot reloading for native dev builds.
-    "bevy/file_watcher",
-    # Enable embedded asset hot reloading for native dev builds.
-    "bevy/embedded_watcher",
+  "dev",
+  # Enable asset hot reloading for native dev builds.
+  "bevy/file_watcher",
+  # Enable embedded asset hot reloading for native dev builds.
+  "bevy/embedded_watcher",
 ]
 
 
