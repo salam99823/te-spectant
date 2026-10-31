@@ -6,12 +6,12 @@
 
 use bevy::prelude::*;
 use rand::prelude::*;
-use std::time::Duration;
+use std::{cmp::Ordering, time::Duration};
 
 use crate::{
     AppSystems, PausableSystems,
     audio::sound_effect,
-    demo::{movement::MovementController, player::PlayerAssets},
+    game::{movement::MovementController, player::PlayerAssets},
 };
 
 pub(super) fn plugin(app: &mut App) {
@@ -40,19 +40,12 @@ fn update_animation_timer(time: Res<Time>, mut query: Query<&mut PlayerAnimation
 }
 
 /// Update the sprite direction and animation state (idling/walking).
-fn update_animation_movement(
-    mut player_query: Query<(&MovementController, &mut Sprite, &mut PlayerAnimation)>,
-) {
-    for (controller, mut sprite, mut animation) in &mut player_query {
-        let dx = controller.intent.x;
-        if dx != 0.0 {
-            sprite.flip_x = dx < 0.0;
-        }
-
+fn update_animation_movement(mut player_query: Query<(&MovementController, &mut PlayerAnimation)>) {
+    for (controller, mut animation) in &mut player_query {
         let animation_state = if controller.intent == Vec2::ZERO {
             PlayerAnimationState::Idling
         } else {
-            PlayerAnimationState::Walking
+            PlayerAnimationState::Walking(controller.intent)
         };
         animation.update_state(animation_state);
     }
@@ -77,8 +70,11 @@ fn trigger_step_sound_effect(
     player_assets: If<Res<PlayerAssets>>,
     mut step_query: Query<&PlayerAnimation>,
 ) {
+    if player_assets.steps.is_empty() {
+        return;
+    }
     for animation in &mut step_query {
-        if animation.state == PlayerAnimationState::Walking
+        if let PlayerAnimationState::Walking(_) = animation.state
             && animation.changed()
             && (animation.frame == 2 || animation.frame == 5)
         {
@@ -102,16 +98,16 @@ pub struct PlayerAnimation {
 #[derive(Reflect, PartialEq)]
 pub enum PlayerAnimationState {
     Idling,
-    Walking,
+    Walking(Vec2),
 }
 
 impl PlayerAnimation {
     /// The number of idle frames.
-    const IDLE_FRAMES: usize = 2;
+    const IDLE_FRAMES: usize = 1;
     /// The duration of each idle frame.
     const IDLE_INTERVAL: Duration = Duration::from_millis(500);
     /// The number of walking frames.
-    const WALKING_FRAMES: usize = 6;
+    const WALKING_FRAMES: usize = 4;
     /// The duration of each walking frame.
     const WALKING_INTERVAL: Duration = Duration::from_millis(50);
 
@@ -123,11 +119,11 @@ impl PlayerAnimation {
         }
     }
 
-    fn walking() -> Self {
+    fn walking(dir: Vec2) -> Self {
         Self {
             timer: Timer::new(Self::WALKING_INTERVAL, TimerMode::Repeating),
             frame: 0,
-            state: PlayerAnimationState::Walking,
+            state: PlayerAnimationState::Walking(dir),
         }
     }
 
@@ -144,7 +140,7 @@ impl PlayerAnimation {
         self.frame = (self.frame + 1)
             % match self.state {
                 PlayerAnimationState::Idling => Self::IDLE_FRAMES,
-                PlayerAnimationState::Walking => Self::WALKING_FRAMES,
+                PlayerAnimationState::Walking(_) => Self::WALKING_FRAMES,
             };
     }
 
@@ -153,7 +149,7 @@ impl PlayerAnimation {
         if self.state != state {
             match state {
                 PlayerAnimationState::Idling => *self = Self::idling(),
-                PlayerAnimationState::Walking => *self = Self::walking(),
+                PlayerAnimationState::Walking(dir) => *self = Self::walking(dir),
             }
         }
     }
@@ -167,7 +163,16 @@ impl PlayerAnimation {
     pub fn get_atlas_index(&self) -> usize {
         match self.state {
             PlayerAnimationState::Idling => self.frame,
-            PlayerAnimationState::Walking => 6 + self.frame,
+            PlayerAnimationState::Walking(dir) => {
+                let start = match (dir.x.total_cmp(&0.0), dir.y.total_cmp(&0.0)) {
+                    (_, Ordering::Less) => 0,
+                    (_, Ordering::Greater) => 9,
+                    (Ordering::Less, _) => 3,
+                    (Ordering::Greater, _) => 6,
+                    _ => 0,
+                };
+                start + self.frame
+            }
         }
     }
 }

@@ -1,11 +1,10 @@
 //! Spawn the main level.
-
 use bevy::prelude::*;
 
 use crate::{
     asset_tracking::LoadResource,
     audio::music,
-    demo::player::{PlayerAssets, player},
+    game::player::{PlayerAssets, player},
     screens::Screen,
 };
 
@@ -17,14 +16,14 @@ pub(super) fn plugin(app: &mut App) {
 #[reflect(Resource)]
 pub struct LevelAssets {
     #[dependency]
-    music: Handle<AudioSource>,
+    music: Option<Handle<AudioSource>>,
 }
 
 impl FromWorld for LevelAssets {
-    fn from_world(world: &mut World) -> Self {
-        let assets = world.resource::<AssetServer>();
+    fn from_world(_world: &mut World) -> Self {
+        // let assets = world.resource::<AssetServer>();
         Self {
-            music: assets.load("audio/music/Fluffing A Duck.ogg"),
+            music: None, // Some(assets.load("audio/music/GlobalMusic.ogg")),
         }
     }
 }
@@ -36,17 +35,16 @@ pub fn spawn_level(
     player_assets: Res<PlayerAssets>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
-    commands.spawn((
+    let mut level = commands.spawn((
         Name::new("Level"),
         Transform::default(),
         Visibility::default(),
         DespawnOnExit(Screen::Gameplay),
-        children![
-            player(400.0, &player_assets, &mut texture_atlas_layouts),
-            (
-                Name::new("Gameplay Music"),
-                music(level_assets.music.clone())
-            )
-        ],
+        children![player(&player_assets, &mut texture_atlas_layouts),],
     ));
+    if let Some(level_music) = &level_assets.music {
+        level.with_children(|commands| {
+            commands.spawn((Name::new("Music"), music(level_music.clone())));
+        });
+    }
 }

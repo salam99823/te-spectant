@@ -1,8 +1,9 @@
 //! The screen state for the main gameplay.
 
-use bevy::{input::common_conditions::input_just_pressed, prelude::*};
+use bevy::prelude::*;
+use leafwing_input_manager::common_conditions::action_just_pressed;
 
-use crate::{Pause, demo::level::spawn_level, menus::Menu, screens::Screen};
+use crate::{GlobalAction, Pause, game::level::spawn_level, menus::Menu, screens::Screen};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(Screen::Gameplay), spawn_level);
@@ -15,14 +16,14 @@ pub(super) fn plugin(app: &mut App) {
                 in_state(Screen::Gameplay)
                     .and_then(in_state(Menu::None))
                     .and_then(
-                        input_just_pressed(KeyCode::KeyP)
-                            .or_else(input_just_pressed(KeyCode::Escape)),
+                        action_just_pressed(GlobalAction::Pause)
+                            .or_else(action_just_pressed(GlobalAction::Escape)),
                     ),
             ),
             close_menu.run_if(
                 in_state(Screen::Gameplay)
                     .and_then(not(in_state(Menu::None)))
-                    .and_then(input_just_pressed(KeyCode::KeyP)),
+                    .and_then(action_just_pressed(GlobalAction::Pause)),
             ),
         ),
     );

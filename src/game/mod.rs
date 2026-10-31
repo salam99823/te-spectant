@@ -6,6 +6,7 @@
 use bevy::prelude::*;
 
 mod animation;
+pub mod collision_groups;
 pub mod level;
 mod movement;
 pub mod player;
