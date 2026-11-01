@@ -1,7 +1,7 @@
 //! Player-specific behavior.
 
 use bevy::{
-    image::{ImageLoaderSettings, ImageSampler},
+    ecs::{lifecycle::HookContext, world::DeferredWorld},
     prelude::*,
 };
 use bevy_rapier2d::prelude::*;
@@ -12,7 +12,7 @@ use crate::{
     asset_tracking::LoadResource,
     game::{
         animation::PlayerAnimation,
-        collision_groups::{PLAYER_GROUP, WALL_GROUP},
+        collision_groups::{ENEMY, PLAYER, SENSOR, WALL},
         movement::{CameraTarget, MovementController},
     },
 };
@@ -24,49 +24,48 @@ pub(super) fn plugin(app: &mut App) {
     // Record directional input as movement controls.
     app.add_systems(
         Update,
-        record_player_directional_input
+        record_player_input
             .in_set(AppSystems::RecordInput)
             .in_set(PausableSystems),
     );
 }
 
-/// The player character.
-pub fn player(
-    player_assets: &PlayerAssets,
-    texture_atlas_layouts: &mut Assets<TextureAtlasLayout>,
-) -> impl Bundle {
-    // A texture atlas is a way to split a single image into a grid of related images.
-    // You can learn more in this example: https://github.com/bevyengine/bevy/blob/latest/examples/2d/texture_atlas.rs
+fn add_sprite(mut world: DeferredWorld, hooks: HookContext) {
+    let entity = hooks.entity;
+
+    let player_assets = world.resource::<PlayerAssets>().clone();
+    let mut texture_atlas_layouts = world.resource_mut::<Assets<TextureAtlasLayout>>();
+
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(32), 3, 4, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    let player_animation = PlayerAnimation::new();
 
-    (
-        Player,
-        Collider::ball(15.0),
-        CollisionGroups::new(WALL_GROUP, PLAYER_GROUP),
-        Sprite::from_atlas_image(
+    world
+        .commands()
+        .entity(entity)
+        .insert(Sprite::from_atlas_image(
             player_assets.sprite.clone(),
             TextureAtlas {
                 layout: texture_atlas_layout,
-                index: player_animation.get_atlas_index(),
+                index: 0,
             },
-        ),
-        player_animation,
-    )
+        ));
 }
 
-#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect, FromTemplate)]
 #[reflect(Component)]
 #[require(
     Name::new("Player"),
     InputMap<PlayerAction> = PlayerAction::input_map(),
-    Transform::from_scale(Vec2::splat(4.0).extend(1.0)),
+    Transform,
+    PlayerAnimation,
     CameraTarget,
     MovementController,
-    RigidBody::Dynamic
+    RigidBody::Dynamic,
+    CollisionGroups::new(PLAYER, WALL | ENEMY | SENSOR),
+    Collider::capsule_y(3.0, 9.0),
 )]
-struct Player;
+#[component(on_add = add_sprite)]
+pub struct Player;
 
 #[derive(Actionlike, PartialEq, Eq, Clone, Copy, Hash, Debug, Reflect)]
 pub enum PlayerAction {
@@ -82,7 +81,7 @@ impl PlayerAction {
     }
 }
 
-fn record_player_directional_input(
+fn record_player_input(
     mut controller_query: Query<
         (&mut MovementController, &ActionState<PlayerAction>),
         With<Player>,
@@ -108,13 +107,7 @@ impl FromWorld for PlayerAssets {
     fn from_world(world: &mut World) -> Self {
         let assets = world.resource::<AssetServer>();
         Self {
-            sprite: assets
-                .load_builder()
-                .with_settings(|settings: &mut ImageLoaderSettings| {
-                    // Use `nearest` image sampling to preserve pixel art style.
-                    settings.sampler = ImageSampler::nearest();
-                })
-                .load("images/player.png"),
+            sprite: assets.load("images/player.png"),
             steps: vec![],
         }
     }

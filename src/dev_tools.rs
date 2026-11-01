@@ -1,11 +1,19 @@
 //! Development tools for the game. This plugin is only enabled in dev builds.
 
 use bevy::{dev_tools::states::log_transitions, prelude::*};
+use bevy_inspector_egui::{bevy_egui::EguiPlugin, quick::WorldInspectorPlugin};
+use bevy_rapier2d::render::RapierDebugRenderPlugin;
 use leafwing_input_manager::common_conditions::action_just_pressed;
 
 use crate::{GlobalAction, screens::Screen};
 
 pub(super) fn plugin(app: &mut App) {
+    app.add_plugins((
+        RapierDebugRenderPlugin::default(),
+        EguiPlugin::default(),
+        WorldInspectorPlugin::new(),
+    ));
+
     // Log `Screen` state transitions.
     app.add_systems(Update, log_transitions::<Screen>);
 

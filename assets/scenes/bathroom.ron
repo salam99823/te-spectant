@@ -1,0 +1,7 @@
+RoomConfig(
+    name: "Bathroom",
+    image_path: "images/bathroom.png",
+    translation: (0.0, 256.0),
+    walls: [],
+    triggers: []
+)

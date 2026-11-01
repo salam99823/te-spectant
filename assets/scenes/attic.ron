@@ -1,0 +1,7 @@
+RoomConfig(
+    name: "Attic",
+    image_path: "images/attic.png",
+    translation: (0.0, 768.0),
+    walls: [],
+    triggers: []
+)

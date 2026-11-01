@@ -38,6 +38,7 @@ impl Plugin for AppPlugin {
                     meta_check: AssetMetaCheck::Never,
                     ..default()
                 })
+                .set(ImagePlugin::default_nearest())
                 .set(WindowPlugin {
                     primary_window: Window {
                         title: "Te Spectant".to_string(),

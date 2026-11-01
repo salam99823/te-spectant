@@ -1,0 +1,19 @@
+RoomConfig(
+    name: "Corridor1",
+    image_path: "images/corridor.png",
+    translation: (0.0, 0.0),
+    walls: [
+        WallConfig(half_extents: (36.0, 128.0), position: (-368.0, 0.0)),
+        WallConfig(half_extents: (36.0, 128.0), position: (368.0, 0.0)),
+        WallConfig(half_extents: (34.0, 6.0),   position: (-88.0, 452.0)),
+        WallConfig(half_extents: (2.0, 78.0),   position: (58.0, 200.0)),
+        WallConfig(half_extents: (128.0, 10.0), position: (0.0, 512.0)),
+        WallConfig(half_extents: (128.0, 10.0), position: (0.0, -520.0)),
+    ],
+    triggers: [
+        TriggerConfig(name: "DoorToBathroom",   target_room_name: "Bathroom",   half_extents: (12.5, 13.0), position: (-74.0, 384.0)),
+        TriggerConfig(name: "DoorToLivingroom", target_room_name: "Livingroom", half_extents: (16.0, 12.5), position: (260.0, -363.0)),
+        TriggerConfig(name: "DoorToKitchen",    target_room_name: "Kitchen",    half_extents: (16.0, 12.5), position: (-260.0, -270.0)),
+        TriggerConfig(name: "Ladder",           target_room_name: "Corridor2",  half_extents: (17.5, 14.0), position: (138.0, 456.0)),
+    ]
+)

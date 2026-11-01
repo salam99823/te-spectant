@@ -1,0 +1,7 @@
+RoomConfig(
+    name: "Corridor2",
+    image_path: "images/corridor.png",
+    translation: (0.0, 512.0),
+    walls: [],
+    triggers: []
+)

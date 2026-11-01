@@ -1,18 +1,3 @@
-//! Handle player input and translate it into movement through a character
-//! controller. A character controller is the collection of systems that govern
-//! the movement of characters.
-//!
-//! In our case, the character controller has the following logic:
-//! - Set [`MovementController`] intent based on directional keyboard input.
-//!   This is done in the `player` module, as it is specific to the player
-//!   character.
-//! - Apply movement based on [`MovementController`] intent and maximum speed.
-//! - Wrap the character within the window.
-//!
-//! Note that the implementation used here is limited for demonstration
-//! purposes. If you want to move the player in a smoother way,
-//! consider using a [fixed timestep](https://github.com/bevyengine/bevy/blob/main/examples/movement/physics_in_fixed_timestep.rs).
-
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -33,6 +18,15 @@ pub(super) fn plugin(app: &mut App) {
 /// other players as well.
 #[derive(Component, Reflect)]
 #[reflect(Component)]
+#[require(
+    Velocity,
+    ExternalForce,
+    LockedAxes::ROTATION_LOCKED_Z,
+    Damping {
+        linear_damping: 4.0,
+        angular_damping: 0.0
+    }
+)]
 pub struct MovementController {
     /// The direction the character wants to move in.
     pub intent: Vec2,
@@ -48,8 +42,8 @@ impl Default for MovementController {
     fn default() -> Self {
         Self {
             intent: Vec2::ZERO,
-            max_speed: 400.0,
-            acceleration: 400.0,
+            max_speed: 300.0,
+            acceleration: 2000.0,
         }
     }
 }
@@ -64,16 +58,15 @@ fn apply_movement(
     )>,
 ) {
     for (controller, velocity, mass_properties, mut external_force) in &mut movement_query {
-        let desired_velocity = controller.max_speed * controller.intent;
-        let direction_change_factor = 1.5 - 0.5 * desired_velocity;
-        let max_acceleration = direction_change_factor
-            .normalize_or_zero()
-            .dot(velocity.linear)
-            * controller.acceleration;
-        let walk_acceleration =
-            (desired_velocity * time.delta_secs()).clamp_length_max(max_acceleration);
-
-        external_force.force = walk_acceleration * mass_properties.get().mass;
+        let desired_velocity = controller.intent * controller.max_speed;
+        let velocity_diff = desired_velocity - velocity.linear;
+        if velocity_diff.length_squared() < 500. {
+            external_force.force = Vec2::ZERO;
+            continue;
+        }
+        let acceleration =
+            (velocity_diff / time.delta_secs()).clamp_length_max(controller.acceleration);
+        external_force.force = acceleration * mass_properties.get().mass;
     }
 }
 
@@ -83,15 +76,17 @@ pub struct CameraTarget;
 
 pub fn camera_follow_system(
     time: Res<Time>,
-    target_transform: Query<&Transform, With<CameraTarget>>,
+    target_transform: Query<&GlobalTransform, With<CameraTarget>>,
     mut camera_query: Query<&mut Transform, (With<MainCamera>, Without<CameraTarget>)>,
 ) {
     if let (Ok(target), Ok(mut camera_transform)) = (
-        target_transform.single().map(|t| t.translation.xy()),
+        target_transform.single().map(|t| t.translation().xy()),
         camera_query.single_mut(),
     ) {
         let current = camera_transform.translation.xy();
-        let lerped = Vec2::lerp(current, target, 1.0 - (-4.0 * time.delta_secs()).exp());
-        camera_transform.translation = lerped.extend(camera_transform.translation.z);
+        if current.distance(target) > 10.0 {
+            let lerped = Vec2::lerp(current, target, 1.0 - (-4.0 * time.delta_secs()).exp());
+            camera_transform.translation = lerped.extend(camera_transform.translation.z);
+        }
     }
 }

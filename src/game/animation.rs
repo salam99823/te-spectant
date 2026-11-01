@@ -88,7 +88,7 @@ fn trigger_step_sound_effect(
 
 /// Component that tracks player's animation state.
 /// It is tightly bound to the texture atlas we use.
-#[derive(Component, Reflect, Default)]
+#[derive(Component, Reflect, Default, Clone)]
 #[reflect(Component)]
 pub struct PlayerAnimation {
     timer: Timer,
@@ -97,7 +97,7 @@ pub struct PlayerAnimation {
     changed: bool,
 }
 
-#[derive(Reflect, PartialEq, Default)]
+#[derive(Reflect, PartialEq, Default, Clone)]
 pub enum PlayerAnimationState {
     #[default]
     Idling,
@@ -128,10 +128,6 @@ impl PlayerAnimation {
             state: PlayerAnimationState::Walking(dir),
             ..default()
         }
-    }
-
-    pub fn new() -> Self {
-        Self::idling()
     }
 
     /// Update animation timers.

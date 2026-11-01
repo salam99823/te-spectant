@@ -1,0 +1,7 @@
+RoomConfig(
+    name: "Livingroom",
+    image_path: "images/livingroom.png",
+    translation: (256.0, 0.0),
+    walls: [],
+    triggers: []
+)

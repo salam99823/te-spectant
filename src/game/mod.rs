@@ -10,6 +10,8 @@ pub mod collision_groups;
 pub mod level;
 mod movement;
 pub mod player;
+pub mod scenes;
+pub mod transition;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins((
@@ -17,5 +19,6 @@ pub(super) fn plugin(app: &mut App) {
         level::plugin,
         movement::plugin,
         player::plugin,
+        transition::plugin,
     ));
 }
