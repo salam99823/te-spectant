@@ -1,0 +1,18 @@
+RoomConfig(
+    name: "Childroom",
+    image_path: "images/childroom.png",
+    translation: (256.0, 512.0),
+    walls: [
+        WallConfig(half_extents: (128.0, 8.0), position: (0.0, 120.0)),
+        WallConfig(half_extents: (128.0, 8.0), position: (0.0, -120.0)),
+        WallConfig(half_extents: (8.0, 128.0), position: (120.0, 0.0)),
+        WallConfig(half_extents: (8.0, 128.0), position: (-120.0, 0.0)),
+        WallConfig(half_extents: (20.0, 36.0), position: (-90.0, 60.0)),
+        WallConfig(half_extents: (16.0, 16.0), position: (-32.0, 80.0)),
+        WallConfig(half_extents: (40.0, 16.0), position: (60.0, 100.0)),
+        WallConfig(half_extents: (24.0, 64.0), position: (80.0, -20.0)),
+    ],
+    triggers: [
+        TriggerConfig(name: "DoorToCorridor2", target_room_name: "Corridor2", half_extents: (12.0, 16.0), position: (-120.0, -90.0)),
+    ]
+)

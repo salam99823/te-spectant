@@ -2,6 +2,19 @@ RoomConfig(
     name: "Livingroom",
     image_path: "images/livingroom.png",
     translation: (256.0, 0.0),
-    walls: [],
-    triggers: []
+    walls: [
+        WallConfig(half_extents: (13.0, 128.0), position: (-471.0, 0.0)),
+        WallConfig(half_extents: (16.0, 128.0), position: (471.0, 0.0)),
+        WallConfig(half_extents: (128.0, 20.0), position: (0.0, 430.0)),
+        WallConfig(half_extents: (128.0, 10.0), position: (0.0, -520.0)),
+        WallConfig(half_extents: (41.0, 10.0), position: (228.0, -430.0)),
+        WallConfig(half_extents: (12.0, 20.0), position: (340.0, -383.0)),
+    ],
+    triggers: [
+        TriggerConfig(
+            name: "DoorToCorridor1",
+            target_room_name: "Corridor1",
+            half_extents: (10.0, 13.0),
+            position: (-440.0, -384.0)),
+    ]
 )

@@ -1,6 +1,6 @@
 RoomConfig(
     name: "Corridor1",
-    image_path: "images/corridor.png",
+    image_path: "images/corridor1.png",
     translation: (0.0, 0.0),
     walls: [
         WallConfig(half_extents: (36.0, 128.0), position: (-368.0, 0.0)),

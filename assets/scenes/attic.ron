@@ -2,6 +2,13 @@ RoomConfig(
     name: "Attic",
     image_path: "images/attic.png",
     translation: (0.0, 768.0),
-    walls: [],
-    triggers: []
+    walls: [
+        WallConfig(half_extents: (128.0, 8.0), position: (0.0, -480.0)),
+        WallConfig(half_extents: (16.0, 32.0), position: (-192.0, 0.0)),
+        WallConfig(half_extents: (24.0, 24.0), position: (144.0, 80.0)),
+        WallConfig(half_extents: (24.0, 24.0), position: (320.0, -360.0)),
+    ],
+    triggers: [
+        TriggerConfig(name: "LadderDown", target_room_name: "Corridor2", half_extents: (16.0, 16.0), position: (0.0, -100.0)),
+    ]
 )

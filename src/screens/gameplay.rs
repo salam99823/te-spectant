@@ -3,11 +3,9 @@
 use bevy::prelude::*;
 use leafwing_input_manager::common_conditions::action_just_pressed;
 
-use crate::{GlobalAction, Pause, game::level::spawn_level, menus::Menu, screens::Screen};
+use crate::{GlobalAction, Pause, menus::Menu, screens::Screen};
 
 pub(super) fn plugin(app: &mut App) {
-    app.add_systems(OnEnter(Screen::Gameplay), spawn_level);
-
     // Toggle pause on key press.
     app.add_systems(
         Update,

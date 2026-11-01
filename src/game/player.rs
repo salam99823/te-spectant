@@ -61,7 +61,7 @@ fn add_sprite(mut world: DeferredWorld, hooks: HookContext) {
     CameraTarget,
     MovementController,
     RigidBody::Dynamic,
-    CollisionGroups::new(PLAYER, WALL | ENEMY | SENSOR),
+    CollisionGroups::new(PLAYER, ENEMY | SENSOR),
     Collider::capsule_y(3.0, 9.0),
 )]
 #[component(on_add = add_sprite)]

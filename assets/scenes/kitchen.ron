@@ -1,7 +1,17 @@
 RoomConfig(
     name: "Kitchen",
-    image_path: "images/livingroom.png",
+    image_path: "images/kitchen.png",
     translation: (-256.0, 0.0),
-    walls: [],
-    triggers: []
+    walls: [
+        WallConfig(half_extents: (128.0, 8.0), position: (0.0, 120.0)),
+        WallConfig(half_extents: (128.0, 8.0), position: (0.0, -120.0)),
+        WallConfig(half_extents: (8.0, 128.0), position: (-120.0, 0.0)),
+        WallConfig(half_extents: (8.0, 128.0), position: (120.0, 0.0)),
+        WallConfig(half_extents: (64.0, 16.0), position: (-50.0, 100.0)),
+        WallConfig(half_extents: (16.0, 64.0), position: (-100.0, 20.0)),
+        WallConfig(half_extents: (40.0, 40.0), position: (70.0, -20.0)),
+    ],
+    triggers: [
+        TriggerConfig(name: "DoorToCorridor1", target_room_name: "Corridor1", half_extents: (8.0, 16.0), position: (120.0, -60.0)),
+    ]
 )

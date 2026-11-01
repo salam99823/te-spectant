@@ -2,6 +2,7 @@ MansionConfig(
     rooms: [
         "scenes/attic.ron",
         "scenes/bedroom.ron",
+        "scenes/childroom.ron",
         "scenes/corridor2.ron",
         "scenes/bathroom.ron",
         "scenes/corridor1.ron",

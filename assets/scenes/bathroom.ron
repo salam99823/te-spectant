@@ -2,6 +2,16 @@ RoomConfig(
     name: "Bathroom",
     image_path: "images/bathroom.png",
     translation: (0.0, 256.0),
-    walls: [],
-    triggers: []
+    walls: [
+        WallConfig(half_extents: (128.0, 8.0), position: (0.0, 120.0)),
+        WallConfig(half_extents: (128.0, 8.0), position: (0.0, -120.0)),
+        WallConfig(half_extents: (8.0, 128.0), position: (-120.0, 0.0)),
+        WallConfig(half_extents: (8.0, 128.0), position: (120.0, 0.0)),
+        WallConfig(half_extents: (50.0, 32.0), position: (-60.0, 80.0)),
+        WallConfig(half_extents: (20.0, 40.0), position: (80.0, 70.0)),
+        WallConfig(half_extents: (16.0, 24.0), position: (-100.0, -60.0)),
+    ],
+    triggers: [
+        TriggerConfig(name: "DoorToCorridor1", target_room_name: "Corridor1", half_extents: (16.0, 8.0), position: (0.0, -120.0)),
+    ]
 )

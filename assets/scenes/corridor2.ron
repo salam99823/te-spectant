@@ -2,6 +2,15 @@ RoomConfig(
     name: "Corridor2",
     image_path: "images/corridor.png",
     translation: (0.0, 512.0),
-    walls: [],
-    triggers: []
+    walls: [
+        WallConfig(half_extents: (128.0, 8.0), position: (0.0, 120.0)),
+        WallConfig(half_extents: (8.0, 128.0), position: (-120.0, 0.0)),
+        WallConfig(half_extents: (8.0, 128.0), position: (120.0, 0.0)),
+        WallConfig(half_extents: (32.0, 128.0), position: (32.0, 0.0)),
+    ],
+    triggers: [
+        TriggerConfig(name: "LadderToAttic", target_room_name: "Attic", half_extents: (16.0, 16.0), position: (32.0, 100.0)),
+        TriggerConfig(name: "DoorToBedroom", target_room_name: "Bedroom", half_extents: (8.0, 16.0), position: (120.0, -90.0)),
+        TriggerConfig(name: "LadderDownToCorridor1", target_room_name: "Corridor1", half_extents: (16.0, 16.0), position: (32.0, -100.0)),
+    ]
 )
